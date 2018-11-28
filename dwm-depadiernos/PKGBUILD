@@ -1,0 +1,42 @@
+pkgname=dwm-depadiernos
+_pkgname=dwm
+pkgver=0.r44.75db81e
+pkgrel=1
+pkgdesc="A dynamic window manager for X - depadiernos"
+url="https://github.com/depadiernos/dwm.git"
+arch=('i686' 'x86_64')
+license=('MIT')
+depends=('libx11' 'libxinerama' 'libxft')
+makedepends=('git')
+provides=('dwm')
+conflicts=('dwm')
+source=(dwm.desktop
+	"git://github.com/depadiernos/dwm.git")
+md5sums=('939f403a71b6e85261d09fc3412269ee'
+         'SKIP')
+
+pkgver(){
+  cd $_pkgname
+  printf '0.r%s.%s' \
+        "$(git rev-list --count HEAD)" "$(git rev-parse --short HEAD)"
+}
+
+prepare() {
+  cd $_pkgname
+  if [[ -f "$SRCDEST/$pkgname/config.h" ]]; then
+    cp -f "$SRCDEST/$pkgname/config.h" config.h
+  fi
+}
+
+build() {
+  cd $_pkgname
+  make
+}
+
+package() {
+  cd $_pkgname
+  make PREFIX=/usr DESTDIR="$pkgdir" install
+  install -m644 -D LICENSE "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+  install -m644 -D README "$pkgdir/usr/share/doc/$pkgname/README"
+  install -m644 -D ../dwm.desktop "$pkgdir/usr/share/xsessions/dwm.desktop"
+}
